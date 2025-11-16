@@ -18,7 +18,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import PythonScratchpad from './PythonScratchpad';
+import CodeScratchpad from './CodeScratchpad';
 import { MarkdownViewer } from './MarkdownViewer';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -67,6 +67,7 @@ type SocraticDialogueProps = {
   onOpenChange: (open: boolean) => void;
   conceptData: any;
   embeddingsPath: string;
+  language: 'python' | 'lisp';
   onMasteryAchieved?: (conceptId: string) => void;
 };
 
@@ -75,6 +76,7 @@ export default function SocraticDialogue({
   onOpenChange,
   conceptData,
   embeddingsPath,
+  language,
   onMasteryAchieved,
 }: SocraticDialogueProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -97,7 +99,7 @@ export default function SocraticDialogue({
   } | null>(null);
   const [lastSentCode, setLastSentCode] = useState<string>('');
   const [lastSentEvaluation, setLastSentEvaluation] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'python' | 'source'>('python');
+  const [activeTab, setActiveTab] = useState<'code' | 'source'>('code');
   const [sourceAnchor, setSourceAnchor] = useState<string | undefined>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -134,7 +136,7 @@ export default function SocraticDialogue({
       setEvaluation(null);
       setLastSentCode('');
       setLastSentEvaluation(null);
-      setActiveTab('python');
+      setActiveTab('code');
       setSourceAnchor(undefined);
     }
   }, [open]);
@@ -365,15 +367,15 @@ export default function SocraticDialogue({
   const demonstratedCount = demonstratedSkills.size;
   const progressPercent = totalIndicators > 0 ? (demonstratedCount / totalIndicators) * 100 : 0;
 
-  // Show Python scratchpad by default (can opt-out with hide_editor: true)
-  const showPythonEditor = conceptData.hide_editor !== true;
+  // Show code scratchpad by default (can opt-out with hide_editor: true)
+  const showCodeEditor = conceptData.hide_editor !== true;
 
   // Send button: enabled if text OR code exists
   const canSend = !isLoading && (input.trim().length > 0 || code.trim().length > 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${showPythonEditor ? '!max-w-[96vw] w-[96vw]' : 'max-w-3xl'} !h-[90vh] flex flex-col p-4`}>
+      <DialogContent className={`${showCodeEditor ? '!max-w-[96vw] w-[96vw]' : 'max-w-3xl'} !h-[90vh] flex flex-col p-4`}>
         <DialogHeader>
           <DialogTitle>Learning: {conceptData.name}</DialogTitle>
           <DialogDescription>{conceptData.description}</DialogDescription>
@@ -434,7 +436,7 @@ export default function SocraticDialogue({
         {/* Main content area */}
         <div className="flex-1 flex gap-4 overflow-auto">
           {/* Messages area (left side or full width) */}
-          <div className={`${showPythonEditor ? 'flex-1 min-w-0' : 'w-full'} flex flex-col`}>
+          <div className={`${showCodeEditor ? 'flex-1 min-w-0' : 'w-full'} flex flex-col`}>
             <div className="flex-1 overflow-y-auto space-y-4 py-4 px-2">
           {messages.map((msg, idx) => (
             <div key={idx} className="space-y-2">
@@ -585,20 +587,20 @@ export default function SocraticDialogue({
             </div>
           </div>
 
-          {/* Right side: Tabbed pane (Python / Source) - shown by default */}
-          {showPythonEditor && (
+          {/* Right side: Tabbed pane (Code / Source) - shown by default */}
+          {showCodeEditor && (
             <div className="flex-1 min-w-0 border-l pl-3 flex flex-col">
               {/* Tab Headers */}
               <div className="flex border-b border-slate-200 bg-slate-50 mb-2">
                 <button
                   className={`px-4 py-2 text-sm font-medium transition-colors ${
-                    activeTab === 'python' 
+                    activeTab === 'code' 
                       ? 'border-b-2 border-blue-500 text-blue-600 bg-white -mb-px' 
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
-                  onClick={() => setActiveTab('python')}
+                  onClick={() => setActiveTab('code')}
                 >
-                  🐍 Python
+                  {language === 'python' ? '🐍 Python' : '🔮 Lisp'}
                 </button>
                 <button
                   className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -614,9 +616,11 @@ export default function SocraticDialogue({
 
               {/* Tab Content */}
               <div className="flex-1 overflow-hidden">
-                {activeTab === 'python' ? (
-                  <PythonScratchpad
-                    starterCode={`# 🧮 Python scratchpad for exploring ${conceptData.name}
+                {activeTab === 'code' ? (
+                  <CodeScratchpad
+                    language={language}
+                    starterCode={language === 'python' 
+                      ? `# 🧮 Python scratchpad for exploring ${conceptData.name}
 # 
 # Feel free to experiment here! You can:
 # - Test out ideas in code
@@ -624,6 +628,15 @@ export default function SocraticDialogue({
 # - Work through examples
 # 
 # Your code and output will be visible to your tutor.
+`
+                      : `;;; 🔮 Lisp scratchpad for exploring ${conceptData.name}
+;;; 
+;;; Feel free to experiment here! You can:
+;;; - Test out ideas in code
+;;; - Answer questions by implementing solutions
+;;; - Work through examples
+;;; 
+;;; Your code and output will be visible to your tutor.
 `}
                     onExecute={(execCode, output, error) => {
                       setEvaluation({ output, error });

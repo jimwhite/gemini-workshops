@@ -27,6 +27,7 @@ type Library = {
   title: string;
   author: string;
   type: string;
+  language: 'python' | 'lisp';
   conceptGraphPath: string;
   embeddingsPath: string;
   description: string;
@@ -304,6 +305,7 @@ export default function Home() {
           onOpenChange={setDialogueOpen}
           conceptData={selectedConcept}
           embeddingsPath={selectedLibrary.embeddingsPath}
+          language={selectedLibrary.language}
           onMasteryAchieved={handleMasteryAchieved}
         />
       )}
