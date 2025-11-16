@@ -19,6 +19,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { SimpleLisp } from '@/lib/simple-lisp';
 
 type LispScratchpadProps = {
   starterCode?: string;
@@ -36,25 +37,19 @@ export default function LispScratchpad({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
-  const lispRef = useRef<{ evaluate: (code: string) => unknown } | null>(null);
+  const lispRef = useRef<SimpleLisp | null>(null);
 
-  // Initialize Fez-Lisp on mount
+  // Initialize SimpleLisp on mount
   useEffect(() => {
-    async function loadLisp() {
-      try {
-        // Dynamically import fez-lisp
-        const { default: Lisp } = await import('fez-lisp');
-        lispRef.current = new Lisp();
-        setIsLoading(false);
-        console.log('✅ Fez-Lisp (Common Lisp) loaded successfully');
-      } catch (err) {
-        console.error('Failed to load Fez-Lisp:', err);
-        setError('Failed to initialize Lisp environment');
-        setIsLoading(false);
-      }
+    try {
+      lispRef.current = new SimpleLisp();
+      setIsLoading(false);
+      console.log('✅ SimpleLisp (Common Lisp) loaded successfully');
+    } catch (err) {
+      console.error('Failed to load SimpleLisp:', err);
+      setError('Failed to initialize Lisp environment');
+      setIsLoading(false);
     }
-
-    loadLisp();
   }, []);
 
   const runCode = async () => {
@@ -71,14 +66,9 @@ export default function LispScratchpad({
       const lisp = lispRef.current;
       
       // Evaluate the Lisp code
-      const result = lisp.evaluate(code);
+      const { output: outputStr } = lisp.evaluate(code);
       
-      // Convert result to string
-      const outputStr = result !== undefined && result !== null 
-        ? String(result) 
-        : '(no output)';
-      
-      setOutput(outputStr);
+      setOutput(outputStr || '(no output)');
       onExecute?.(code, outputStr, null);
       
     } catch (err: unknown) {
