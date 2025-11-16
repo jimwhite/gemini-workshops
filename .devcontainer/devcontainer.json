@@ -1,0 +1,12 @@
+{
+  "name": "Learning App",
+  "build": {
+    "context": "../learning",
+    "dockerfile": "Dockerfile",
+    "target": "base"
+  },
+  "workspaceFolder": "/workspace/learning",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "forwardPorts": [3000],
+  "postCreateCommand": "cd /workspace/learning && npm install"
+}
