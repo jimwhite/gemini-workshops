@@ -36,7 +36,7 @@ export default function LispScratchpad({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
-  const jsclRef = useRef<any>(null);
+  const jsclRef = useRef<{ evaluateString: (code: string) => unknown } | null>(null);
 
   // Initialize JSCL on mount
   useEffect(() => {
@@ -47,9 +47,9 @@ export default function LispScratchpad({
         let attempts = 0;
         
         while (attempts < maxAttempts) {
-          // @ts-ignore - JSCL loads from CDN
+          // @ts-expect-error - JSCL loads from CDN
           if (typeof window.jscl !== 'undefined') {
-            // @ts-ignore
+            // @ts-expect-error - JSCL loads from CDN
             jsclRef.current = window.jscl;
             setIsLoading(false);
             console.log('✅ JSCL (Common Lisp) loaded successfully');
@@ -90,7 +90,7 @@ export default function LispScratchpad({
       const originalLog = console.log;
       
       // Override console.log to capture output
-      console.log = (...args: any[]) => {
+      console.log = (...args: unknown[]) => {
         capturedOutput += args.map(arg => 
           typeof arg === 'string' ? arg : JSON.stringify(arg)
         ).join(' ') + '\n';
@@ -112,8 +112,8 @@ export default function LispScratchpad({
         console.log = originalLog;
       }
       
-    } catch (err: any) {
-      const errorMsg = err.message || 'Execution error';
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Execution error';
       setError(errorMsg);
       onExecute?.(code, '', errorMsg);
     } finally {
