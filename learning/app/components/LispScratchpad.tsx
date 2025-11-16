@@ -36,42 +36,29 @@ export default function LispScratchpad({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
-  const jsclRef = useRef<{ evaluateString: (code: string) => unknown } | null>(null);
+  const lispRef = useRef<{ evaluate: (code: string) => unknown } | null>(null);
 
-  // Initialize JSCL on mount
+  // Initialize Fez-Lisp on mount
   useEffect(() => {
-    async function loadJSCL() {
+    async function loadLisp() {
       try {
-        // Wait for JSCL to be available from CDN
-        const maxAttempts = 50; // 5 seconds
-        let attempts = 0;
-        
-        while (attempts < maxAttempts) {
-          // @ts-expect-error - JSCL loads from CDN
-          if (typeof window.jscl !== 'undefined') {
-            // @ts-expect-error - JSCL loads from CDN
-            jsclRef.current = window.jscl;
-            setIsLoading(false);
-            console.log('✅ JSCL (Common Lisp) loaded successfully');
-            return;
-          }
-          await new Promise(resolve => setTimeout(resolve, 100));
-          attempts++;
-        }
-        
-        throw new Error('JSCL failed to load within timeout period');
+        // Dynamically import fez-lisp
+        const { default: Lisp } = await import('fez-lisp');
+        lispRef.current = new Lisp();
+        setIsLoading(false);
+        console.log('✅ Fez-Lisp (Common Lisp) loaded successfully');
       } catch (err) {
-        console.error('Failed to load JSCL:', err);
+        console.error('Failed to load Fez-Lisp:', err);
         setError('Failed to initialize Lisp environment');
         setIsLoading(false);
       }
     }
 
-    loadJSCL();
+    loadLisp();
   }, []);
 
   const runCode = async () => {
-    if (!jsclRef.current) {
+    if (!lispRef.current) {
       setError('Lisp environment not ready');
       return;
     }
@@ -81,36 +68,18 @@ export default function LispScratchpad({
     setOutput('');
 
     try {
-      const jscl = jsclRef.current;
+      const lisp = lispRef.current;
       
-      // Capture output by redirecting *standard-output*
-      let capturedOutput = '';
+      // Evaluate the Lisp code
+      const result = lisp.evaluate(code);
       
-      // Store original console.log
-      const originalLog = console.log;
+      // Convert result to string
+      const outputStr = result !== undefined && result !== null 
+        ? String(result) 
+        : '(no output)';
       
-      // Override console.log to capture output
-      console.log = (...args: unknown[]) => {
-        capturedOutput += args.map(arg => 
-          typeof arg === 'string' ? arg : JSON.stringify(arg)
-        ).join(' ') + '\n';
-      };
-
-      try {
-        // Evaluate the Lisp code
-        const result = jscl.evaluateString(code);
-        
-        // Add result to output if it's not undefined/nil
-        if (result !== undefined && result !== null) {
-          capturedOutput += String(result);
-        }
-        
-        setOutput(capturedOutput || '(no output)');
-        onExecute?.(code, capturedOutput, null);
-      } finally {
-        // Restore console.log
-        console.log = originalLog;
-      }
+      setOutput(outputStr);
+      onExecute?.(code, outputStr, null);
       
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Execution error';
