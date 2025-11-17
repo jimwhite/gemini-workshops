@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 # Install dependencies
 COPY . .
 # Note: The actual source code will be mounted from the host
-COPY package.json package-lock.json ./
+# COPY package.json package-lock.json ./
 
 RUN npm install
 
