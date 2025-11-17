@@ -1,0 +1,40 @@
+{
+  "name": "Learning",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../../learning"
+  },
+  "workspaceFolder": "/workspace/learning",
+  "workspaceMount": "source=${localWorkspaceFolder}/learning,target=/workspace/learning,type=bind,consistency=cached",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.js-debug-nightly",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteEnv": {
+    "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}"
+  },
+  "secrets": {
+    "GOOGLE_API_KEY": {
+      "description": "Your Google API key for accessing Google services in GitHub Codespaces.",
+      "documentationUrl": "https://docs.github.com/en/codespaces/managing-your-codespaces/managing-your-account-specific-secrets-for-github-codespaces"
+    }
+  },
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Node",
+      "requireLocalPort": true
+    }
+  }
+}
