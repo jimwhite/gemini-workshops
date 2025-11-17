@@ -16,7 +16,7 @@
 FROM node:25-slim
 
 # Set working directory
-WORKDIR /workspace
+WORKDIR /workspaces/learning
 
 # Install git and other useful development tools
 RUN apt-get update && apt-get install -y \
@@ -33,20 +33,6 @@ RUN npm install
 
 ENV ESLINT_IGNORE_DURING_BUILDS=1
 RUN npm run build
-
-# Copy only necessary files from builder
-# COPY public ./public
-# COPY .next/standalone ./
-# COPY .next/static ./.next/static
-
-# Copy embeddings and concept data (read-only at runtime)
-# COPY paip-chapter-1 ./paip-chapter-1
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Expose Next.js dev server port
-EXPOSE ${PORT}
 
 # Keep container running for devcontainer
 CMD ["node", "server.js"]

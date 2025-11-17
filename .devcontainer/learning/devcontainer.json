@@ -4,19 +4,13 @@
     "dockerfile": "Dockerfile",
     "context": "../../learning"
   },
-  "workspaceFolder": "/workspace/learning",
-  "workspaceMount": "source=${localWorkspaceFolder}/learning,target=/workspace/learning,type=bind,consistency=cached",
+  "workspaceFolder": "/workspaces/learning",
+  "workspaceMount": "source=${localWorkspaceFolder}/learning,target=/workspaces/learning,type=bind,consistency=cached",
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-vscode-remote.remote-containers",
-        "ms-azuretools.vscode-docker",
-        "ms-vscode.js-debug-nightly",
-        "dbaeumer.vscode-eslint"
-      ],
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
-      }
+        "ms-vscode-remote.remote-containers"
+      ]
     }
   },
   "remoteEnv": {
@@ -28,12 +22,16 @@
       "documentationUrl": "https://docs.github.com/en/codespaces/managing-your-codespaces/managing-your-account-specific-secrets-for-github-codespaces"
     }
   },
+  "containerEnv": {
+    "HOSTNAME": "0.0.0.0",
+    "PORT": "3000"
+  },
   "forwardPorts": [
     3000
   ],
   "portsAttributes": {
     "3000": {
-      "label": "Node",
+      "label": "Learning",
       "requireLocalPort": true
     }
   }
