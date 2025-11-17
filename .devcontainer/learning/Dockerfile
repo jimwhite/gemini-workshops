@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+USER node
+
 # Install dependencies
 COPY . .
 # Note: The actual source code will be mounted from the host
@@ -35,4 +37,4 @@ ENV ESLINT_IGNORE_DURING_BUILDS=1
 RUN npm run build
 
 # Keep container running for devcontainer
-CMD ["node", ".next/standalone/server.js "]
+CMD ["node", "server.js "]
