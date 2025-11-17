@@ -1,7 +1,10 @@
 {
   "name": "Learning",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "workspaceFolder": "/workspaces/gemini-workshops/learning",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../../learning"
+  },
+  "workspaceFolder": "/workspaces/gemini-workshops",
   "remoteEnv": {
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}"
   },
@@ -24,6 +27,5 @@
       "label": "Learning",
       "requireLocalPort": true
     }
-  },
-  "postCreateCommand": "npm install && npm run build && cp -R .next/standalone/* . && node server.js"
+  }
 }
