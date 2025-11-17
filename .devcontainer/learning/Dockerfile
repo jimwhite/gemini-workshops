@@ -16,7 +16,7 @@
 FROM node:25-slim
 
 # Set working directory
-WORKDIR /workspaces/learning
+WORKDIR /workspaces/gemini-workshops/learning
 
 # Install git and other useful development tools
 RUN apt-get update && apt-get install -y \
@@ -35,4 +35,4 @@ ENV ESLINT_IGNORE_DURING_BUILDS=1
 RUN npm run build
 
 # Keep container running for devcontainer
-CMD ["node", "server.js"]
+CMD ["node", ".next/standalone/server.js "]

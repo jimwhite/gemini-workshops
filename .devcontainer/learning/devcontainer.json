@@ -4,8 +4,7 @@
     "dockerfile": "Dockerfile",
     "context": "../../learning"
   },
-  "workspaceFolder": "/workspaces/learning",
-  "workspaceMount": "source=${localWorkspaceFolder}/learning,target=/workspaces/learning,type=bind,consistency=cached",
+  "workspaceFolder": "/workspaces/gemini-workshops",
   "customizations": {
     "vscode": {
       "extensions": [
